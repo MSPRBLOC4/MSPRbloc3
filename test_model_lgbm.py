@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from sklearn.model_selection import learning_curve
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import warnings, joblib
 from sklearn.preprocessing   import LabelEncoder, OneHotEncoder, StandardScaler
@@ -99,7 +101,30 @@ else:
     pipe_lgbm.fit(X_tr, y_tr)
     y_val_pred = pipe_lgbm.predict(X_val)
     print_metrics(y_val, y_val_pred, prefix="LightGBM (hold‑out) | ")
+train_sizes, train_scores, val_scores = learning_curve(
+    pipe_lgbm, X, y,
+    cv=cv if min_class >= 2 else 5,
+    scoring="accuracy",
+    train_sizes=np.linspace(0.1, 1.0, 5),
+    n_jobs=-1
+)
+train_mean = train_scores.mean(axis=1)
+train_std  = train_scores.std(axis=1)
+val_mean   = val_scores.mean(axis=1)
+val_std    = val_scores.std(axis=1)
 
+plt.figure(figsize=(8,5))
+plt.plot(train_sizes, train_mean, 'o-', label="Train score")
+plt.fill_between(train_sizes, train_mean-train_std, train_mean+train_std, alpha=0.1)
+plt.plot(train_sizes, val_mean, 'o-', label="Validation score")
+plt.fill_between(train_sizes, val_mean-val_std, val_mean+val_std, alpha=0.1)
+plt.title("Learning Curve (accuracy)")
+plt.xlabel("Taille de l'échantillon d'entraînement")
+plt.ylabel("Accuracy")
+plt.legend(loc="best")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
 # ------------------------------------------------------------------ #
 # 7. Entraînement complet & export                                   #
 # ------------------------------------------------------------------ #
@@ -113,6 +138,7 @@ cat_cols     = X.select_dtypes(include=["object", "category"]).columns
 
 # ---------- préparation df_predict ---------------------------parti_politique,positionnement_politique
 print(df_predict.columns.tolist())
+df_predict = df_predict[df_predict["annee"] == "2022"].reset_index(drop=True)
 df_predict = df_predict.copy()        # évite le SettingWithCopyWarning
 
 # 1. Cast : toutes les colonnes catégorielles en *string*
@@ -144,6 +170,15 @@ pred_counts = (
 
 print(" Nombre de prédictions par candidat :")
 print(pred_counts)
+#Graphe pour visualiser les prediction sur la bretagne
+plt.figure(figsize=(10, 6))
+pred_counts.plot(kind="bar")
+plt.title("Nombre de prédictions par candidat (Bretagne 2022)")
+plt.xlabel("Candidat")
+plt.ylabel("Nombre de communes")
+plt.xticks(rotation=45, ha="right")
+plt.tight_layout()
+plt.show()
 # éventuel export
 df_predict.to_csv("predictions_bretagne.csv", index=False, encoding="utf-8")
 print(" predictions_bretagne.csv créé")

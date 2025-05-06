@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 df_final = pd.read_csv('dataset_final.csv')
 
 # ---------------------------------------------------------
-# 2) Agrégation immigrés par région + année
+# 2) Agrégation Chômeurs par région + année
 # ---------------------------------------------------------
 
 agg = (
@@ -33,7 +33,7 @@ ax = pivot.plot(
     width=0.8
 )
 ax.set_title("Top 5 régions par nombre de Chômeurs (2017 vs 2022)")
-ax.set_ylabel("Nombre d'immigrés")
+ax.set_ylabel("Nombre de Chômeurs")
 ax.set_xlabel("Région")
 plt.xticks(rotation=45, ha="right")
 plt.legend(title="Année")
@@ -101,7 +101,7 @@ ax.annotate(f"Δ = {diff:,} ({pct:.1f} %)",
 # 7) Titres et style
 ax.set_title("Comparaison du nombre de Chômeurs En Bretagne\n2017 vs 2022", pad=15)
 ax.set_xlabel("Année")
-ax.set_ylabel("Nombre d'immigrés")
+ax.set_ylabel("Nombre Chômeurs")
 plt.ylim(0, values.max()*1.15)
 plt.tight_layout()
 plt.show()

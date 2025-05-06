@@ -43,7 +43,7 @@ import seaborn as sns
 df = pd.read_csv("dataset_final.csv", low_memory=False)
 
 # Calculer le taux de chômage (%)
-df['taux_chomage'] = df['chomeurs15_64ans'] / df['POP'] * 100
+df['taux_chomage'] = df['chomeurs15_64ans'] / (df['POP1529'] + df ['POP4559'] + df['POP3044'])* 100
 
 # Tracer les boxplots par candidat
 plt.figure(figsize=(14, 6))
